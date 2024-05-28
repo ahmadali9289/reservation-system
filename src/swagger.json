@@ -1,0 +1,299 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Reservation system ",
+    "description": "Node.js RESTful API for reservation system",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "basePath": "/",
+  "schemes": ["http", "https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["healthcheck"],
+        "summary": "Application service health check 💗",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/user": {
+      "post": {
+        "tags": ["create user"],
+        "description": "Create user",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "default": "Provide API-key (ie. API_KEY_TOKEN from .env.locals file)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Input",
+            "in": "body",
+            "description": "Input data required to create new user",
+            "schema": {
+              "$ref": "#/definitions/UserInput"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "User has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ResponseWithMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access forbidden. Incorrect x-api-key!",
+            "error": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "message": {}
+          }
+        },
+        "security": [
+          {
+            "api_key": "$X_API_KEY"
+          }
+        ]
+      }
+    },
+    "/api/event": {
+      "post": {
+        "tags": ["create event"],
+        "description": "Create event",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "default": "Provide API-key (ie. API_KEY_TOKEN from .env.locals file)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Input",
+            "in": "body",
+            "description": "Input data required to create new event",
+            "schema": {
+              "$ref": "#/definitions/EventInput"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Event has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ResponseWithMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access forbidden. Incorrect x-api-key!",
+            "error": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "message": {}
+          }
+        },
+        "security": [
+          {
+            "api_key": "$X_API_KEY"
+          }
+        ]
+      }
+    },
+    "/api/event/{eventId}/seats": {
+      "get": {
+        "tags": ["get event seats"],
+        "description": "Create available seats for an event",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "Event ID in the params",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "List of available seats for the event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ResponseWithEventSeats"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access forbidden. Incorrect x-api-key!",
+            "error": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "message": {}
+          }
+        }
+      }
+    },
+    "/api/event/{eventId}/seat/{$seatId}/reserve": {
+      "post": {
+        "tags": ["reserve event seat"],
+        "description": "Reserve an available event seat",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "Event ID in the params",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "seatId",
+            "in": "path",
+            "description": "Seat ID in the params",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Reserve a seat for the event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ResponseWithEventSeats"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access forbidden. Incorrect x-api-key!",
+            "error": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "message": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Input": {
+      "required": ["input"],
+      "properties": {
+        "input": {
+          "type": "object",
+          "$ref": "#/definitions/InputBody"
+        }
+      }
+    },
+    "UserInput": {
+      "required": ["name", "email"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "default": "John Doe"
+        },
+        "email": {
+          "type": "string",
+          "default": "john.d@example.net"
+        }
+      }
+    },
+    "EventInput": {
+      "required": ["name", "email"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "default": "New Event"
+        },
+        "totalSeats": {
+          "type": "number",
+          "default": 10
+        },
+        "dateTime": {
+          "type": "string",
+          "default": "2021-12-31T23:59:59.999Z"
+        }
+      }
+    },
+    "ResponseWithEventSeats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string"
+          },
+          "seatNumber": {
+            "type": "number"
+          },
+          "isBooked": {
+            "type": "boolean"
+          },
+          "isHold": {
+            "type": "boolean"
+          },
+          "bookedBy": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "bookedAt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ResponseWithMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "x-api-key": {
+      "type": "apiKey",
+      "name": "x-api-key",
+      "in": "header"
+    }
+  }
+}

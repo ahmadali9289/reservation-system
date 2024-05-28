@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dev.Dockerfile
+    command: 
+      - '/app/scripts/docker/local-run.sh'
+      - '/app/scripts/docker/local-reservation-run.sh'
+    ports:
+      - '8080:8080'
+      - '9229:9229'
+    env_file: .env.local
+    volumes:
+      - './src:/app/src'
+  kafka: # https://hub.docker.com/r/confluentinc/cp-kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zooKeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zooKeeper
+    image: 'confluentinc/cp-kafka:latest'
+    ports:
+      - '9092:9092'
+    platform: linux/amd64
+
+  cache:
+      image: redis:6.2-alpine
+      restart: always
+      ports:
+        - '6379:6379'
+      command: redis-server --save 20 1 --loglevel warning
+      
+  zooKeeper: # https://hub.docker.com/r/confluentinc/cp-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: '2181'
+    image: 'confluentinc/cp-zookeeper:latest'
+    ports:
+      - '2181:2181'
+    platform: linux/amd64
